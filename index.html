@@ -1,0 +1,885 @@
+<!DOCTYPE html>
+<html lang="ms">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Kalkulator Tuntutan Kerja Lebih Masa (E-KLM)</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+            --primary-color: #2c3e50;
+            --secondary-color: #3498db;
+            --accent-color: #e74c3c;
+            --light-color: #ecf0f1;
+            --dark-color: #34495e;
+        }
+        
+        body {
+            background-color: #f8f9fa;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            padding-top: 20px;
+            padding-bottom: 40px;
+        }
+        
+        .header {
+            background: linear-gradient(135deg, var(--primary-color), var(--dark-color));
+            color: white;
+            border-radius: 10px;
+            padding: 20px;
+            margin-bottom: 25px;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+        }
+        
+        .card {
+            border-radius: 10px;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.05);
+            margin-bottom: 20px;
+            border: none;
+            transition: transform 0.3s ease;
+        }
+        
+        .card:hover {
+            transform: translateY(-5px);
+        }
+        
+        .card-header {
+            background: linear-gradient(to right, var(--secondary-color), #1e88e5);
+            color: white;
+            border-radius: 10px 10px 0 0 !important;
+            font-weight: 600;
+            padding: 12px 20px;
+        }
+        
+        .btn-primary {
+            background-color: var(--secondary-color);
+            border: none;
+            padding: 10px 20px;
+            font-weight: 600;
+            transition: all 0.3s;
+        }
+        
+        .btn-primary:hover {
+            background-color: #2980b9;
+            transform: translateY(-2px);
+        }
+        
+        .btn-success {
+            background-color: #27ae60;
+            padding: 8px 15px;
+        }
+        
+        .btn-danger {
+            background-color: var(--accent-color);
+            padding: 8px 15px;
+        }
+        
+        .form-control:focus {
+            border-color: var(--secondary-color);
+            box-shadow: 0 0 0 0.25rem rgba(52, 152, 219, 0.25);
+        }
+        
+        .result-card {
+            background-color: #fff;
+            border-left: 5px solid var(--secondary-color);
+        }
+        
+        .kadar-section {
+            background-color: white;
+            border-radius: 8px;
+            padding: 15px;
+            margin-bottom: 20px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+        }
+        
+        .kadar-title {
+            color: var(--primary-color);
+            font-weight: 600;
+            margin-bottom: 15px;
+            padding-bottom: 10px;
+            border-bottom: 2px solid var(--light-color);
+        }
+        
+        .table th {
+            background-color: var(--light-color);
+            color: var(--dark-color);
+            font-weight: 600;
+        }
+        
+        .add-row-btn {
+            margin-top: 10px;
+        }
+        
+        .footer {
+            text-align: center;
+            padding: 20px;
+            color: #7f8c8d;
+            font-size: 0.9rem;
+            margin-top: 30px;
+        }
+        
+        .total-display {
+            font-size: 1.2rem;
+            font-weight: 600;
+            color: var(--dark-color);
+            background-color: #e3f2fd;
+            padding: 10px;
+            border-radius: 5px;
+            margin-top: 10px;
+        }
+        
+        .highlight {
+            color: var(--accent-color);
+            font-weight: bold;
+        }
+        
+        .step-indicator {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 20px;
+            counter-reset: step;
+        }
+        
+        .step {
+            flex: 1;
+            text-align: center;
+            position: relative;
+            padding: 10px;
+        }
+        
+        .step:before {
+            counter-increment: step;
+            content: counter(step);
+            width: 30px;
+            height: 30px;
+            background-color: var(--light-color);
+            color: var(--dark-color);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 10px;
+            font-weight: bold;
+        }
+        
+        .step.active:before {
+            background-color: var(--secondary-color);
+            color: white;
+        }
+        
+        .step.active .step-text {
+            color: var(--secondary-color);
+            font-weight: bold;
+        }
+        
+        .step-text {
+            color: #7f8c8d;
+        }
+        
+        .print-btn {
+            background-color: #8e44ad;
+            border: none;
+        }
+        
+        .print-btn:hover {
+            background-color: #7d3c98;
+        }
+        
+        .jam-cell {
+            font-weight: bold;
+            color: var(--secondary-color);
+        }
+        
+        @media print {
+            .no-print {
+                display: none;
+            }
+            
+            body {
+                padding: 0;
+                background-color: white;
+            }
+            
+            .card {
+                box-shadow: none;
+                border: 1px solid #ddd;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header text-center">
+            <h1><i class="fas fa-calculator me-2"></i>KALKULATOR TUNTUTAN ELAUN KERJA LEBIH MASA</h1>
+            <p class="lead">Sistem Pengiraan Tuntutan Berdasarkan Sistem HRMIS</p>
+        </div>
+        
+        <div class="step-indicator">
+            <div class="step active">
+                <div class="step-text">Maklumat Asas</div>
+            </div>
+            <div class="step">
+                <div class="step-text">Jam Kerja Lebih Masa</div>
+            </div>
+            <div class="step">
+                <div class="step-text">Keputusan Tuntutan</div>
+            </div>
+        </div>
+        
+        <div class="row">
+            <div class="col-lg-4">
+                <div class="card">
+                    <div class="card-header">
+                        <i class="fas fa-user-circle me-2"></i>MAKLUMAT PEGAWAI
+                    </div>
+                    <div class="card-body">
+                        <div class="mb-3">
+                            <label class="form-label">No. Perkhidmatan</label>
+                            <input type="text" class="form-control" id="noPerkhidmatan" placeholder="Masukkan no. perkhidmatan">
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Nama Pegawai</label>
+                            <input type="text" class="form-control" id="namaPegawai" placeholder="Masukkan nama penuh">
+                        </div>
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label">Gaji Pokok (RM)</label>
+                                <input type="number" class="form-control" id="gajiPokok" placeholder="0.00" min="0" step="0.01">
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label">ITKA (RM)</label>
+                                <input type="number" class="form-control" id="itka" placeholder="0.00" min="0" step="0.01">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="card mt-4">
+                    <div class="card-header">
+                        <i class="fas fa-info-circle me-2"></i>MAKLUMAT KADAR
+                    </div>
+                    <div class="card-body">
+                        <table class="table table-bordered">
+                            <thead>
+                                <tr>
+                                    <th>Kadar</th>
+                                    <th>Faktor</th>
+                                    <th>Waktu</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td>A</td>
+                                    <td>1.125</td>
+                                    <td>Hari biasa (8:00 pagi - 10:00 malam)</td>
+                                </tr>
+                                <tr>
+                                    <td>B</td>
+                                    <td>1.25</td>
+                                    <td>Hari biasa (10:00 malam - 6:00 pagi)</td>
+                                </tr>
+                                <tr>
+                                    <td>C</td>
+                                    <td>1.5</td>
+                                    <td>Hari Rehat / Sabtu (8:00 pagi - 10:00 malam)</td>
+                                </tr>
+                                <tr>
+                                    <td>D</td>
+                                    <td>1.75</td>
+                                    <td>Hari Rehat / Sabtu (10:00 malam - 6:00 pagi)</td>
+                                </tr>
+                                <tr>
+                                    <td>E</td>
+                                    <td>2.0</td>
+                                    <td>Hari Kelepasan Am / Ahad</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="col-lg-8">
+                <div class="card">
+                    <div class="card-header">
+                        <i class="fas fa-clock me-2"></i>REKOD KERJA LEBIH MASA
+                    </div>
+                    <div class="card-body">
+                        <!-- Kadar A -->
+                        <div class="kadar-section">
+                            <h5 class="kadar-title"><i class="fas fa-sun me-2"></i>KADAR A (Faktor: 1.125)</h5>
+                            <div class="table-responsive">
+                                <table class="table table-bordered" id="kadarATable">
+                                    <thead>
+                                        <tr>
+                                            <th>Bil</th>
+                                            <th>Tarikh</th>
+                                            <th>Masa Mula</th>
+                                            <th>Masa Tamat</th>
+                                            <th>Jumlah Jam</th>
+                                            <th>Tindakan</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr>
+                                            <td>1</td>
+                                            <td><input type="date" class="form-control date-input"></td>
+                                            <td><input type="time" class="form-control time-input" value="08:00"></td>
+                                            <td><input type="time" class="form-control time-input" value="17:00"></td>
+                                            <td class="jam-cell">0.00</td>
+                                            <td><button class="btn btn-sm btn-danger"><i class="fas fa-trash"></i></button></td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                            <button class="btn btn-sm btn-success add-row-btn" data-kadar="A"><i class="fas fa-plus me-1"></i> Tambah Rekod</button>
+                        </div>
+                        
+                        <!-- Kadar B -->
+                        <div class="kadar-section">
+                            <h5 class="kadar-title"><i class="fas fa-moon me-2"></i>KADAR B (Faktor: 1.25)</h5>
+                            <div class="table-responsive">
+                                <table class="table table-bordered" id="kadarBTable">
+                                    <thead>
+                                        <tr>
+                                            <th>Bil</th>
+                                            <th>Tarikh</th>
+                                            <th>Masa Mula</th>
+                                            <th>Masa Tamat</th>
+                                            <th>Jumlah Jam</th>
+                                            <th>Tindakan</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr>
+                                            <td>1</td>
+                                            <td><input type="date" class="form-control date-input"></td>
+                                            <td><input type="time" class="form-control time-input" value="08:00"></td>
+                                            <td><input type="time" class="form-control time-input" value="17:00"></td>
+                                            <td class="jam-cell">0.00</td>
+                                            <td><button class="btn btn-sm btn-danger"><i class="fas fa-trash"></i></button></td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                            <button class="btn btn-sm btn-success add-row-btn" data-kadar="B"><i class="fas fa-plus me-1"></i> Tambah Rekod</button>
+                        </div>
+                        
+                        <!-- Kadar C -->
+                        <div class="kadar-section">
+                            <h5 class="kadar-title"><i class="fas fa-calendar-day me-2"></i>KADAR C (Faktor: 1.5)</h5>
+                            <div class="table-responsive">
+                                <table class="table table-bordered" id="kadarCTable">
+                                    <thead>
+                                        <tr>
+                                            <th>Bil</th>
+                                            <th>Tarikh</th>
+                                            <th>Masa Mula</th>
+                                            <th>Masa Tamat</th>
+                                            <th>Jumlah Jam</th>
+                                            <th>Tindakan</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr>
+                                            <td>1</td>
+                                            <td><input type="date" class="form-control date-input"></td>
+                                            <td><input type="time" class="form-control time-input" value="08:00"></td>
+                                            <td><input type="time" class="form-control time-input" value="17:00"></td>
+                                            <td class="jam-cell">0.00</td>
+                                            <td><button class="btn btn-sm btn-danger"><i class="fas fa-trash"></i></button></td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                            <button class="btn btn-sm btn-success add-row-btn" data-kadar="C"><i class="fas fa-plus me-1"></i> Tambah Rekod</button>
+                        </div>
+                        
+                        <!-- Kadar D -->
+                        <div class="kadar-section">
+                            <h5 class="kadar-title"><i class="fas fa-calendar-week me-2"></i>KADAR D (Faktor: 1.75)</h5>
+                            <div class="table-responsive">
+                                <table class="table table-bordered" id="kadarDTable">
+                                    <thead>
+                                        <tr>
+                                            <th>Bil</th>
+                                            <th>Tarikh</th>
+                                            <th>Masa Mula</th>
+                                            <th>Masa Tamat</th>
+                                            <th>Jumlah Jam</th>
+                                            <th>Tindakan</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr>
+                                            <td>1</td>
+                                            <td><input type="date" class="form-control date-input"></td>
+                                            <td><input type="time" class="form-control time-input" value="08:00"></td>
+                                            <td><input type="time" class="form-control time-input" value="17:00"></td>
+                                            <td class="jam-cell">0.00</td>
+                                            <td><button class="btn btn-sm btn-danger"><i class="fas fa-trash"></i></button></td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                            <button class="btn btn-sm btn-success add-row-btn" data-kadar="D"><i class="fas fa-plus me-1"></i> Tambah Rekod</button>
+                        </div>
+                        
+                        <!-- Kadar E -->
+                        <div class="kadar-section">
+                            <h5 class="kadar-title"><i class="fas fa-calendar-alt me-2"></i>KADAR E (Faktor: 2.0)</h5>
+                            <div class="table-responsive">
+                                <table class="table table-bordered" id="kadarETable">
+                                    <thead>
+                                        <tr>
+                                            <th>Bil</th>
+                                            <th>Tarikh</th>
+                                            <th>Masa Mula</th>
+                                            <th>Masa Tamat</th>
+                                            <th>Jumlah Jam</th>
+                                            <th>Tindakan</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr>
+                                            <td>1</td>
+                                            <td><input type="date" class="form-control date-input"></td>
+                                            <td><input type="time" class="form-control time-input" value="08:00"></td>
+                                            <td><input type="time" class="form-control time-input" value="17:00"></td>
+                                            <td class="jam-cell">0.00</td>
+                                            <td><button class="btn btn-sm btn-danger"><i class="fas fa-trash"></i></button></td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                            <button class="btn btn-sm btn-success add-row-btn" data-kadar="E"><i class="fas fa-plus me-1"></i> Tambah Rekod</button>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="d-flex justify-content-between mt-4 no-print">
+                    <button class="btn btn-secondary" id="resetBtn"><i class="fas fa-redo me-2"></i>Set Semula</button>
+                    <button class="btn btn-primary" id="hitungBtn"><i class="fas fa-calculator me-2"></i>Hitung Tuntutan</button>
+                    <button class="btn print-btn" id="printBtn"><i class="fas fa-print me-2"></i>Cetakan</button>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Result Section -->
+        <div class="card mt-4 result-card" id="resultSection" style="display: none;">
+            <div class="card-header">
+                <i class="fas fa-file-invoice-dollar me-2"></i>KEPUTUSAN TUNTUTAN ELAUN KERJA LEBIH MASA
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-4">
+                        <div class="mb-3">
+                            <label class="form-label">No. Perkhidmatan:</label>
+                            <p class="form-control-static" id="resultNoPer">-</p>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Nama Pegawai:</label>
+                            <p class="form-control-static" id="resultNama">-</p>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="mb-3">
+                            <label class="form-label">Gaji Pokok:</label>
+                            <p class="form-control-static" id="resultGaji">RM 0.00</p>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">ITKA:</label>
+                            <p class="form-control-static" id="resultITKA">RM 0.00</p>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="mb-3">
+                            <label class="form-label">Jumlah Jam Keseluruhan:</label>
+                            <p class="form-control-static" id="resultTotalJam">0.00 jam</p>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Jumlah Tuntutan:</label>
+                            <p class="form-control-static highlight" id="resultTuntutan" style="font-size: 1.4rem;">RM 0.00</p>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="row mt-4">
+                    <div class="col-md-6">
+                        <h5>Ringkasan Kadar</h5>
+                        <table class="table table-bordered">
+                            <thead>
+                                <tr>
+                                    <th>Kadar</th>
+                                    <th>Jumlah Jam</th>
+                                    <th>Jumlah (RM)</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td>A (1.125)</td>
+                                    <td id="jamA">0.00</td>
+                                    <td id="jumlahA">0.00</td>
+                                </tr>
+                                <tr>
+                                    <td>B (1.25)</td>
+                                    <td id="jamB">0.00</td>
+                                    <td id="jumlahB">0.00</td>
+                                </tr>
+                                <tr>
+                                    <td>C (1.5)</td>
+                                    <td id="jamC">0.00</td>
+                                    <td id="jumlahC">0.00</td>
+                                </tr>
+                                <tr>
+                                    <td>D (1.75)</td>
+                                    <td id="jamD">0.00</td>
+                                    <td id="jumlahD">0.00</td>
+                                </tr>
+                                <tr>
+                                    <td>E (2.0)</td>
+                                    <td id="jamE">0.00</td>
+                                    <td id="jumlahE">0.00</td>
+                                </tr>
+                                <tr class="table-active">
+                                    <th>JUMLAH KESELURUHAN</th>
+                                    <th id="totalJam">0.00</th>
+                                    <th id="totalKeseluruhan">RM 0.00</th>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                    <div class="col-md-6">
+                        <h5>Butiran Pengiraan</h5>
+                        <div class="total-display">
+                            <p>Gaji Pokok: <span id="calcGaji">RM 0.00</span></p>
+                            <p>ITKA: <span id="calcITKA">RM 0.00</span></p>
+                            <p>Jumlah Jam Keseluruhan: <span id="calcTotalJam">0.00</span> jam</p>
+                            <p>Faktor Pengiraan: (GP + ITKA) × 1/3 × Jumlah Jam × 12/2504</p>
+                            <p>Jumlah Tuntutan: <span id="calcTuntutan" class="highlight">RM 0.00</span></p>
+                        </div>
+                        
+                        <div class="mt-4">
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <div class="d-grid gap-2">
+                                        <button class="btn btn-outline-primary"><i class="fas fa-download me-2"></i>Muat Turun PDF</button>
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="d-grid gap-2">
+                                        <button class="btn btn-outline-success"><i class="fas fa-share-alt me-2"></i>Kongsi Keputusan</button>
+                                    
+<div class="col-md-6 mt-3">
+    <div class="d-grid gap-2">
+        <button class="btn btn-outline-warning" id="exportExcelBtn"><i class="fas fa-file-excel me-2"></i>Muat Turun Excel</button>
+        <button class="btn btn-outline-danger mt-2" id="exportPDFBtn"><i class="fas fa-file-pdf me-2"></i>Muat Turun PDF</button>
+    </div>
+</div>
+
+</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="row mt-4">
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            <label>Tandatangan Penyedia:</label>
+                            <div class="signature-pad" style="height: 100px; border: 1px solid #ddd; margin-bottom: 10px;"></div>
+                            <input type="text" class="form-control mt-2" placeholder="Nama Penyedia">
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            <label>Tandatangan Penyemak/Pelulus:</label>
+                            <div class="signature-pad" style="height: 100px; border: 1px solid #ddd; margin-bottom: 10px;"></div>
+                            <input type="text" class="form-control mt-2" placeholder="Nama Penyemak/Pelulus">
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="footer">
+            <p>© 2023 Kalkulator Tuntutan Kerja Lebih Masa | Sistem Pengiraan Berdasarkan Peraturan HRMIS</p>
+            <p>Dibangunkan untuk kegunaan dalaman | Versi 2.1</p>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        // Function to calculate hours for a row
+        function calculateRowHours(row) {
+            const startInput = row.querySelector('input[type="time"]:nth-child(1)');
+            const endInput = row.querySelector('input[type="time"]:nth-child(2)');
+            const jamCell = row.cells[4]; // Jam cell
+            
+            if (!startInput || !endInput) return;
+            
+            const startTime = startInput.value;
+            const endTime = endInput.value;
+            
+            if (startTime && endTime) {
+                const start = new Date(`1970-01-01T${startTime}`);
+                const end = new Date(`1970-01-01T${endTime}`);
+                
+                let diffHours = (end - start) / (1000 * 60 * 60);
+                if (diffHours < 0) diffHours += 24; // Add 24 hours if negative
+                
+                jamCell.textContent = diffHours.toFixed(2);
+            } else {
+                jamCell.textContent = '0.00';
+            }
+        }
+        
+        // Function to add new row to tables
+        document.querySelectorAll('.add-row-btn').forEach(button => {
+            button.addEventListener('click', function() {
+                const kadar = this.getAttribute('data-kadar');
+                const table = document.getElementById(`kadar${kadar}Table`);
+                const tbody = table.querySelector('tbody');
+                const rowCount = tbody.querySelectorAll('tr').length;
+                
+                const newRow = document.createElement('tr');
+                newRow.innerHTML = `
+                    <td>${rowCount + 1}</td>
+                    <td><input type="date" class="form-control date-input"></td>
+                    <td><input type="time" class="form-control time-input" value="08:00"></td>
+                    <td><input type="time" class="form-control time-input" value="17:00"></td>
+                    <td class="jam-cell">0.00</td>
+                    <td><button class="btn btn-sm btn-danger"><i class="fas fa-trash"></i></button></td>
+                `;
+                
+                tbody.appendChild(newRow);
+                
+                // Set default date for new row
+                const today = new Date();
+                const year = today.getFullYear();
+                const month = String(today.getMonth() + 1).padStart(2, '0');
+                const day = String(today.getDate()).padStart(2, '0');
+                newRow.querySelector('.date-input').value = `${year}-${month}-${day}`;
+                
+                // Add event to time inputs
+                newRow.querySelectorAll('.time-input').forEach(input => {
+                    input.addEventListener('change', function() {
+                        calculateRowHours(newRow);
+                    });
+                });
+                
+                // Add event to delete button
+                newRow.querySelector('.btn-danger').addEventListener('click', function() {
+                    tbody.removeChild(newRow);
+                    updateRowNumbers(table);
+                });
+                
+                // Calculate hours for new row
+                calculateRowHours(newRow);
+            });
+        });
+        
+        // Function to update row numbers
+        function updateRowNumbers(table) {
+            const rows = table.querySelectorAll('tbody tr');
+            rows.forEach((row, index) => {
+                row.cells[0].textContent = index + 1;
+            });
+        }
+        
+        // Add event to existing time inputs
+        document.querySelectorAll('.time-input').forEach(input => {
+            input.addEventListener('change', function() {
+                const row = this.closest('tr');
+                calculateRowHours(row);
+            });
+        });
+        
+        // Add event to existing delete buttons
+        document.querySelectorAll('.btn-danger').forEach(button => {
+            button.addEventListener('click', function() {
+                const row = this.closest('tr');
+                const table = row.closest('table');
+                row.remove();
+                updateRowNumbers(table);
+            });
+        });
+        
+        // Reset button event
+        document.getElementById('resetBtn').addEventListener('click', function() {
+            // Reset basic info
+            document.getElementById('noPerkhidmatan').value = '';
+            document.getElementById('namaPegawai').value = '';
+            document.getElementById('gajiPokok').value = '';
+            document.getElementById('itka').value = '';
+            
+            // Reset all tables
+            document.querySelectorAll('table[id^="kadar"] tbody').forEach(tbody => {
+                tbody.innerHTML = `
+                    <tr>
+                        <td>1</td>
+                        <td><input type="date" class="form-control date-input"></td>
+                        <td><input type="time" class="form-control time-input" value="08:00"></td>
+                        <td><input type="time" class="form-control time-input" value="17:00"></td>
+                        <td class="jam-cell">0.00</td>
+                        <td><button class="btn btn-sm btn-danger"><i class="fas fa-trash"></i></button></td>
+                    </tr>
+                `;
+                
+                // Set default date
+                const today = new Date();
+                const year = today.getFullYear();
+                const month = String(today.getMonth() + 1).padStart(2, '0');
+                const day = String(today.getDate()).padStart(2, '0');
+                tbody.querySelector('.date-input').value = `${year}-${month}-${day}`;
+                
+                // Add event to time inputs
+                tbody.querySelectorAll('.time-input').forEach(input => {
+                    input.addEventListener('change', function() {
+                        calculateRowHours(this.closest('tr'));
+                    });
+                });
+                
+                // Add event to delete button
+                tbody.querySelector('.btn-danger').addEventListener('click', function() {
+                    const row = this.closest('tr');
+                    const table = row.closest('table');
+                    row.remove();
+                    updateRowNumbers(table);
+                });
+            });
+            
+            // Hide result section
+            document.getElementById('resultSection').style.display = 'none';
+        });
+        
+        // Calculate button event
+        document.getElementById('hitungBtn').addEventListener('click', function() {
+            // Get basic info
+            const noPer = document.getElementById('noPerkhidmatan').value || '-';
+            const nama = document.getElementById('namaPegawai').value || '-';
+            const gaji = parseFloat(document.getElementById('gajiPokok').value) || 0;
+            const itka = parseFloat(document.getElementById('itka').value) || 0;
+            
+            // Validate inputs
+            if (!gaji || gaji <= 0) {
+                alert('Sila masukkan gaji pokok yang sah');
+                return;
+            }
+            
+            // Set result values
+            document.getElementById('resultNoPer').textContent = noPer;
+            document.getElementById('resultNama').textContent = nama;
+            document.getElementById('resultGaji').textContent = `RM ${gaji.toFixed(2)}`;
+            document.getElementById('resultITKA').textContent = `RM ${itka.toFixed(2)}`;
+            
+            // Calculate for each kadar
+            const factors = { A: 1.125, B: 1.25, C: 1.5, D: 1.75, E: 2.0 };
+            let totalJam = 0;
+            let totalTuntutan = 0;
+            
+            // Calculate gaji per hour
+            const gajiPerJam = (gaji + itka) * (1/3) * (12/2504);
+            
+            for (const kadar in factors) {
+                const factor = factors[kadar];
+                const table = document.getElementById(`kadar${kadar}Table`);
+                const rows = table.querySelectorAll('tbody tr');
+                
+                let jamKadar = 0;
+                let jumlahKadar = 0;
+                
+                rows.forEach(row => {
+                    const jam = parseFloat(row.cells[4].textContent) || 0;
+                    jamKadar += jam;
+                    jumlahKadar += jam * factor * gajiPerJam;
+                });
+                
+                // Update summary
+                document.getElementById(`jam${kadar}`).textContent = jamKadar.toFixed(2);
+                document.getElementById(`jumlah${kadar}`).textContent = jumlahKadar.toFixed(2);
+                
+                totalJam += jamKadar;
+                totalTuntutan += jumlahKadar;
+            }
+            
+            // Set results
+            document.getElementById('resultTotalJam').textContent = `${totalJam.toFixed(2)} jam`;
+            document.getElementById('resultTuntutan').textContent = `RM ${totalTuntutan.toFixed(2)}`;
+            document.getElementById('totalJam').textContent = totalJam.toFixed(2);
+            document.getElementById('totalKeseluruhan').textContent = `RM ${totalTuntutan.toFixed(2)}`;
+            
+            document.getElementById('calcGaji').textContent = `RM ${gaji.toFixed(2)}`;
+            document.getElementById('calcITKA').textContent = `RM ${itka.toFixed(2)}`;
+            document.getElementById('calcTotalJam').textContent = totalJam.toFixed(2);
+            document.getElementById('calcTuntutan').textContent = `RM ${totalTuntutan.toFixed(2)}`;
+            
+            // Show result section
+            document.getElementById('resultSection').style.display = 'block';
+            
+            // Scroll to result
+            document.getElementById('resultSection').scrollIntoView({ behavior: 'smooth' });
+        });
+        
+        // Print button event
+        document.getElementById('printBtn').addEventListener('click', function() {
+            window.print();
+        });
+        
+        // Set default dates to today
+        document.querySelectorAll('.date-input').forEach(input => {
+            const today = new Date();
+            const year = today.getFullYear();
+            const month = String(today.getMonth() + 1).padStart(2, '0');
+            const day = String(today.getDate()).padStart(2, '0');
+            input.value = `${year}-${month}-${day}`;
+        });
+        
+        // Calculate initial hours
+        document.querySelectorAll('table[id^="kadar"] tbody tr').forEach(row => {
+            calculateRowHours(row);
+        });
+    </script>
+
+    <!-- Library untuk eksport -->
+    <script src="xlsx.full.min.js"></script>
+    <script src="html2pdf.bundle.min.js"></script>
+
+    <script>
+        // Fungsi eksport ke Excel
+        function exportToExcel() {
+            const tables = ['kadarATable', 'kadarBTable', 'kadarCTable', 'kadarDTable', 'kadarETable'];
+            const wb = XLSX.utils.book_new();
+
+            tables.forEach(id => {
+                const table = document.getElementById(id);
+                const ws = XLSX.utils.table_to_sheet(table);
+                XLSX.utils.book_append_sheet(wb, ws, id.replace('Table', ''));
+            });
+
+            XLSX.writeFile(wb, 'TuntutanOT.xlsx');
+        }
+
+        // Fungsi eksport ke PDF
+        function exportToPDF() {
+            const element = document.getElementById('resultSection');
+            const opt = {
+                margin:       0.5,
+                filename:     'TuntutanOT.pdf',
+                image:        { type: 'jpeg', quality: 0.98 },
+                html2canvas:  { scale: 2 },
+                jsPDF:        { unit: 'in', format: 'a4', orientation: 'portrait' }
+            };
+            html2pdf().set(opt).from(element).save();
+        }
+
+        // Tambah event listener kepada butang
+        document.addEventListener("DOMContentLoaded", function() {
+            document.getElementById("exportExcelBtn").addEventListener("click", exportToExcel);
+            document.getElementById("exportPDFBtn").addEventListener("click", exportToPDF);
+        });
+    </script>
+
+</body>
+</html>
